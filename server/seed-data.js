@@ -5,17 +5,17 @@ const bcrypt = require('bcryptjs');
 
 const seedData = async () => {
   try {
+    // Kết nối MongoDB
     await mongoose.connect(process.env.MONGO_URI);
     console.log('✅ Connected to MongoDB');
 
-    // ✅ XÓA TOÀN BỘ DỮ LIỆU CŨ TRƯỚC KHI SEED
-    console.log('🗑️ Đang xóa dữ liệu cũ...');
-    await Category.deleteMany({});
-    await Product.deleteMany({});
-    console.log('✅ Đã xóa sạch categories và products');
+    // Xóa dữ liệu cũ (optional - comment lại nếu muốn giữ data)
+    // await Category.deleteMany({});
+    // await Product.deleteMany({});
+    console.log('🗑️ Đã xóa dữ liệu cũ (nếu có)');
 
     // ==================== 1. TẠO CATEGORIES ====================
-    const categoriesData = [
+    const categories = await Category.insertMany([
       { name: 'Laptop Gaming', slug: 'laptop-gaming', isActive: true },
       { name: 'PC Gaming', slug: 'pc-gaming', isActive: true },
       { name: 'Linh kiện PC', slug: 'linh-kien-pc', isActive: true },
@@ -25,19 +25,20 @@ const seedData = async () => {
       { name: 'Tai nghe', slug: 'tai-nghe', isActive: true },
       { name: 'Ghế Gaming', slug: 'ghe-gaming', isActive: true },
       { name: 'Phụ kiện', slug: 'phu-kien', isActive: true }
-    ];
-
-    const categories = await Category.insertMany(categoriesData);
+    ]);
     console.log(`✅ Đã tạo ${categories.length} danh mục`);
 
-    // Lấy ID các categories
-    const categoryMap = {};
-    categories.forEach(cat => {
-      categoryMap[cat.name] = cat._id;
-    });
+    // Lấy ID các categories để gán cho products
+    const laptopCat = categories.find(c => c.name === 'Laptop Gaming')._id;
+    const pcCat = categories.find(c => c.name === 'PC Gaming')._id;
+    const linhKienCat = categories.find(c => c.name === 'Linh kiện PC')._id;
+    const manHinhCat = categories.find(c => c.name === 'Màn hình')._id;
+    const banPhimCat = categories.find(c => c.name === 'Bàn phím')._id;
+    const chuotCat = categories.find(c => c.name === 'Chuột')._id;
+    const taiNgheCat = categories.find(c => c.name === 'Tai nghe')._id;
 
     // ==================== 2. TẠO PRODUCTS ====================
-    const productsData = [
+    const products = await Product.insertMany([
       // LAPTOP GAMING
       {
         name: 'ASUS ROG Strix G15 G513',
@@ -45,7 +46,7 @@ const seedData = async () => {
         discountPrice: 32990000,
         brand: 'ASUS',
         stock: 10,
-        category: categoryMap['Laptop Gaming'],
+        category: laptopCat,
         images: ['https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=600'],
         specs: [
           { k: 'CPU', v: 'AMD Ryzen 7 5800H' },
@@ -62,7 +63,7 @@ const seedData = async () => {
         discountPrice: 0,
         brand: 'MSI',
         stock: 8,
-        category: categoryMap['Laptop Gaming'],
+        category: laptopCat,
         images: ['https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600'],
         specs: [
           { k: 'CPU', v: 'Intel Core i7-11800H' },
@@ -79,7 +80,7 @@ const seedData = async () => {
         discountPrice: 39990000,
         brand: 'Lenovo',
         stock: 5,
-        category: categoryMap['Laptop Gaming'],
+        category: laptopCat,
         images: ['https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=600'],
         specs: [
           { k: 'CPU', v: 'AMD Ryzen 7 5800H' },
@@ -98,7 +99,7 @@ const seedData = async () => {
         discountPrice: 42990000,
         brand: 'ASUS',
         stock: 3,
-        category: categoryMap['PC Gaming'],
+        category: pcCat,
         images: ['https://images.unsplash.com/photo-1587202372634-32705e3e568e?w=600'],
         specs: [
           { k: 'CPU', v: 'Intel Core i9-12900K' },
@@ -116,7 +117,7 @@ const seedData = async () => {
         discountPrice: 0,
         brand: 'MSI',
         stock: 5,
-        category: categoryMap['PC Gaming'],
+        category: pcCat,
         images: ['https://images.unsplash.com/photo-1555617778-02518510b9fa?w=600'],
         specs: [
           { k: 'CPU', v: 'Intel Core i7-12700K' },
@@ -136,7 +137,7 @@ const seedData = async () => {
         discountPrice: 11490000,
         brand: 'ASUS',
         stock: 15,
-        category: categoryMap['Màn hình'],
+        category: manHinhCat,
         images: ['https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=600'],
         specs: [
           { k: 'Kích thước', v: '27 inch' },
@@ -153,7 +154,7 @@ const seedData = async () => {
         discountPrice: 0,
         brand: 'LG',
         stock: 8,
-        category: categoryMap['Màn hình'],
+        category: manHinhCat,
         images: ['https://images.unsplash.com/photo-1527443060892-b83a8f8c9d9c?w=600'],
         specs: [
           { k: 'Kích thước', v: '32 inch' },
@@ -172,7 +173,7 @@ const seedData = async () => {
         discountPrice: 3490000,
         brand: 'Corsair',
         stock: 20,
-        category: categoryMap['Bàn phím'],
+        category: banPhimCat,
         images: ['https://images.unsplash.com/photo-1595225476474-875641b6616d?w=600'],
         specs: [
           { k: 'Loại switch', v: 'Cherry MX Red' },
@@ -188,7 +189,7 @@ const seedData = async () => {
         discountPrice: 0,
         brand: 'Razer',
         stock: 12,
-        category: categoryMap['Bàn phím'],
+        category: banPhimCat,
         images: ['https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600'],
         specs: [
           { k: 'Loại switch', v: 'Razer Green' },
@@ -206,7 +207,7 @@ const seedData = async () => {
         discountPrice: 2190000,
         brand: 'Logitech',
         stock: 25,
-        category: categoryMap['Chuột'],
+        category: chuotCat,
         images: ['https://images.unsplash.com/photo-1527814050087-3793815479db?w=600'],
         specs: [
           { k: 'Cảm biến', v: 'HERO 25K' },
@@ -222,7 +223,7 @@ const seedData = async () => {
         discountPrice: 0,
         brand: 'Razer',
         stock: 30,
-        category: categoryMap['Chuột'],
+        category: chuotCat,
         images: ['https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600'],
         specs: [
           { k: 'Cảm biến', v: 'Focus+ 20K' },
@@ -240,7 +241,7 @@ const seedData = async () => {
         discountPrice: 1990000,
         brand: 'HyperX',
         stock: 18,
-        category: categoryMap['Tai nghe'],
+        category: taiNgheCat,
         images: ['https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=600'],
         specs: [
           { k: 'Driver', v: '53mm' },
@@ -256,7 +257,7 @@ const seedData = async () => {
         discountPrice: 0,
         brand: 'SteelSeries',
         stock: 10,
-        category: categoryMap['Tai nghe'],
+        category: taiNgheCat,
         images: ['https://images.unsplash.com/photo-1612444530582-fc66183b16f7?w=600'],
         specs: [
           { k: 'Driver', v: '40mm' },
@@ -266,15 +267,13 @@ const seedData = async () => {
         ],
         isActive: true
       }
-    ];
+    ]);
 
-    const products = await Product.insertMany(productsData);
     console.log(`✅ Đã tạo ${products.length} sản phẩm`);
-
     console.log('\n📊 TÓM TẮT:');
     console.log(`   - ${categories.length} danh mục`);
     console.log(`   - ${products.length} sản phẩm`);
-    console.log('\n🎉 HOÀN THÀNH! Refresh trang web để xem kết quả.');
+    console.log('\n🎉 HOÀN THÀNH! Database gaming_shop đã có dữ liệu.');
 
     process.exit(0);
   } catch (error) {
