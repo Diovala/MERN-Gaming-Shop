@@ -1,0 +1,30 @@
+:root {
+  --bg-dark: #111;
+  --bg-panel: #1a1a1a;
+  --primary: #e60012;
+  --text: #eee;
+  --border: #333;
+  --success: #28a745;
+  --warning: #ffc107;
+  --danger: #dc3545;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg-dark); color: var(--text); font-family: sans-serif; }
+a { text-decoration: none; color: inherit; }
+
+/* Layout Admin */
+.admin-layout { display: flex; min-height: 100vh; }
+.sidebar { width: 250px; background: #000; border-right: 1px solid var(--border); padding: 20px; }
+.content { flex: 1; padding: 30px; }
+
+/* Table Style */
+table { width: 100%; border-collapse: collapse; margin-top: 20px; background: var(--bg-panel); }
+th, td { padding: 12px; border: 1px solid var(--border); text-align: left; }
+th { background: #222; color: var(--primary); }
+
+/* Buttons */
+.btn { padding: 6px 12px; border: none; cursor: pointer; border-radius: 4px; color: white; font-weight: bold; }
+.btn-approve { background: var(--success); }
+.btn-cancel { background: var(--danger); }
+.btn-logout { background: #333; margin-top: 20px; width: 100%; }
